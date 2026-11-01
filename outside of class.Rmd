@@ -1,0 +1,83 @@
+---
+title: "plotly and flexdashboard"
+author: "Risa Dickerman"
+date: "2026-10-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(p8105.datasets)
+
+library(plotly)
+```
+
+#
+
+```{r}
+data(nyc_airbnb)
+
+nyc_airbnb = 
+  nyc_airbnb |> 
+  select(
+    neighbourhood_group, neighbourhood, review_scores_location, price, room_type, lat, long) |>
+  filter(
+    !is.na(review_scores_location), 
+    neighbourhood_group == "Manhattan",
+    room_type == "Entire home/apt",
+    price %in% 100:500)
+```
+
+
+#Plotly 
+
+#Scatterplots
+  - ggplot vs plot_ly - define a dataset, how variables map to plot elements,.
+```{r}
+nyc_airbnb |> 
+  mutate(
+    text_label = str_c("Price: $", price, "\nRating: ", review_scores_location)
+  ) |> 
+  plot_ly(
+    x = ~lat, y = ~long, type = "scatter", mode = "markers", 
+    color = ~price, text = ~text_label, alpha = 0.5
+  )
+
+```
+- \n shortcut for newline
+
+#Bosplots
+
+```{r}
+nyc_airbnb |> 
+  mutate(neighbourhood = fct_reorder(neighbourhood, price)) |> 
+  plot_ly(y = ~price, color =~neighbourhood,
+          type = "box")
+```
+
+##barchart
+
+```{r}
+nyc_airbnb |> 
+  count(neighbourhood) |> 
+  mutate(neighbourhood = fct_reorder(neighbourhood, n)) |> 
+  plot_ly(x = ~neighbourhood, y =~n, vtype="bar", color = ~neighbourhood,
+          colors = "viridis")
+```
+
+## ggplotly
+
+```{r}
+scatter = nyc_airbnb |> 
+  ggplot(aes(x = lat, y = long, color = price)) +
+  geom_point(alpha = 0.5)+
+  coord_cartesian()
+
+scatter
+```
+
+#He went to site and added this to plotly
+under href: plots.html he added
+text: "Plotly"
+href: plotly.thml
+-takes a while to upload
